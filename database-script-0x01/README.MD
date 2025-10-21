@@ -1,4 +1,4 @@
- # Database Schema (DDL) — ALX Airbnb Database
+  # Database Schema (DDL) — ALX Airbnb Database
 
 ## Files
 - `schema.sql` — PostgreSQL DDL: tables, constraints, and indexes for the Airbnb-like system.
