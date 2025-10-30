@@ -1,3 +1,42 @@
+-- ==========================================================
+-- Task 5 — Partitioning Large Tables (PostgreSQL)
+-- ==========================================================
+
+-- Drop any existing partitioned version (optional for rerun)
+DROP TABLE IF EXISTS booking_p CASCADE;
+
+-- ✅ Create the partitioned table by RANGE on start_date
+CREATE TABLE booking_p (
+    booking_id UUID PRIMARY KEY,
+    property_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    total_price DECIMAL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) PARTITION BY RANGE (start_date);
+
+-- ✅ Create partitions by year or quarter (example yearly)
+CREATE TABLE booking_p_2024 PARTITION OF booking_p
+    FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
+
+CREATE TABLE booking_p_2025 PARTITION OF booking_p
+    FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+
+-- ✅ Default partition to capture out-of-range rows
+CREATE TABLE booking_p_default PARTITION OF booking_p DEFAULT;
+
+-- ✅ Example index on date & property for better performance
+CREATE INDEX idx_booking_p_property_dates
+    ON booking_p (property_id, start_date, end_date);
+
+-- ✅ Example test query to verify partition pruning
+EXPLAIN ANALYZE
+SELECT booking_id, property_id, start_date, end_date
+FROM booking_p
+WHERE start_date >= DATE '2025-07-01'
+  AND start_date <  DATE '2025-10-01';
 
 ---
 
